@@ -1,7 +1,7 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-29/server.schema.json",
   "name": "io.github.ohadf2015/stoquant-mcp",
-  "description": "Quantitative stock research for Claude and any MCP client: 48 read-only tools covering prices, the Q-Score composite, calibrated ML outperformance probabilities, screeners, market regime, insider and institutional ownership, SEC filings, social sentiment, a 14-source alternative-data dossier, and macro indicators. Read-only by design; free tier available.",
+  "description": "Quant stock research for Claude: 48 read-only tools — Q-Score, ML odds, screeners, alt-data.",
   "title": "StoQuant — Quantitative Stock Research",
   "version": "0.5.3",
   "repository": {
