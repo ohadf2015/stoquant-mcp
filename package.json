@@ -1,0 +1,52 @@
+{
+  "name": "stoquant-mcp",
+  "version": "0.5.3",
+  "description": "Model Context Protocol server for StoQuant — read-only investor signals, screening, and market data.",
+  "license": "MIT",
+  "author": "StoQuant",
+  "homepage": "https://stoquant.com/mcp",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ohadf2015/stoquant-mcp.git"
+  },
+  "bugs": "https://github.com/ohadf2015/stoquant-mcp/issues",
+  "mcpName": "io.github.ohadf2015/stoquant-mcp",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "stoquant-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "stoquant",
+    "stocks",
+    "investing",
+    "quant",
+    "claude"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}

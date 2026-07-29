@@ -1,0 +1,31 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-29/server.schema.json",
+  "name": "io.github.ohadf2015/stoquant-mcp",
+  "description": "Quantitative stock research for Claude and any MCP client: 48 read-only tools covering prices, the Q-Score composite, calibrated ML outperformance probabilities, screeners, market regime, insider and institutional ownership, SEC filings, social sentiment, a 14-source alternative-data dossier, and macro indicators. Read-only by design; free tier available.",
+  "title": "StoQuant — Quantitative Stock Research",
+  "version": "0.5.3",
+  "repository": {
+    "url": "https://github.com/ohadf2015/stoquant-mcp",
+    "source": "github"
+  },
+  "websiteUrl": "https://stoquant.com/mcp",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "stoquant-mcp",
+      "version": "0.5.3",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "STOQUANT_API_KEY",
+          "description": "StoQuant API key. Mint one free (100 requests/day) at https://stoquant.com/account/api-keys",
+          "isRequired": true,
+          "isSecret": true,
+          "format": "string"
+        }
+      ]
+    }
+  ]
+}
