@@ -15,14 +15,13 @@ export function loadConfig(): Config {
       `STOQUANT_BASE_URL must use https:// (got: ${rawBase}). Set STOQUANT_DEV=1 to allow http for local dev.`,
     );
   }
-  const apiKey = process.env.STOQUANT_API_KEY?.trim();
-  if (!apiKey) {
-    throw new Error(
-      "STOQUANT_API_KEY is required. The StoQuant MCP server is gated to Power-tier subscribers. " +
-        "Get a key at https://stoquant.com/account/api-keys and run `npx stoquant-mcp install` to set it up.",
-    );
-  }
-  if (!/^sk_(live|test)_[A-Za-z0-9_\-]{16,}$/.test(apiKey)) {
+  // The key is NOT Power-tier-only: stoquant.com/pricing sells a Free plan at $0 with 100 API
+  // requests/day and no credit card. Saying "Power tier required" here (and crashing on a missing
+  // key) told every free user the server was not for them — the 87% signup→activated-key cliff.
+  // Measured 2026-08-18: only 2 of 47 endpoints answer without a key (/gems, /scrape-signals/
+  // catalyst-watch), so booting keyless is deliberately allowed but degraded, not the happy path.
+  const apiKey = process.env.STOQUANT_API_KEY?.trim() ?? "";
+  if (apiKey && !/^sk_(live|test)_[A-Za-z0-9_\-]{16,}$/.test(apiKey)) {
     throw new Error(
       "STOQUANT_API_KEY format invalid. Expected `sk_live_…` or `sk_test_…`. Re-issue at https://stoquant.com/account/api-keys.",
     );

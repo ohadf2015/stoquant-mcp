@@ -63,8 +63,12 @@ Use stoquant_get_sec_filings for the readable filing list, stoquant_get_catalyst
 for date-driven events, and stoquant_get_social_sentiment for crowd positioning.
 
 ## Subscription tiers
-API keys are Power-tier and clear all Pro/Power gated endpoints. A 403 means the
-key owner's plan lacks access; a 401 means the key itself is bad/expired/revoked.
+Free ($0/mo, no credit card, 100 requests/day) covers the core research tools.
+Pro ($29/mo) adds the full hidden-gem screener, unlimited custom screens,
+watchlists and alerts. Power ($79/mo) adds ML alpha scores across 3,500+ stocks,
+Black-Litterman optimization, HMM regime probabilities and 10-K risk analysis.
+A 403 means the key owner's plan lacks that data — https://stoquant.com/pricing.
+A 401 means no key was sent, or the key is bad/expired/revoked.
 
 ## Units & conventions
 - marketCap: raw USD (250M = 250000000).
