@@ -24,7 +24,9 @@ export class StoQuantClient {
       "User-Agent": this.config.userAgent,
       Accept: "application/json",
     };
-    headers["Authorization"] = `Bearer ${this.config.apiKey}`;
+    // No key is a supported (degraded) mode — send no header at all rather than `Bearer `, which
+    // the API reads as a malformed credential instead of an anonymous request.
+    if (this.config.apiKey) headers["Authorization"] = `Bearer ${this.config.apiKey}`;
     if (opts.body !== undefined) headers["Content-Type"] = "application/json";
 
     const controller = new AbortController();
@@ -52,7 +54,9 @@ export class StoQuantClient {
 
     if (!res.ok) {
       const body = await safeReadText(res);
-      throw new Error(explainHttpError(res.status, res.statusText, redactPath(path), body));
+      throw new Error(
+        explainHttpError(res.status, res.statusText, redactPath(path), body, Boolean(this.config.apiKey)),
+      );
     }
     const text = await res.text();
     if (!text) return {} as T;
@@ -97,19 +101,27 @@ function redactPath(p: string): string {
  * status line. The goal is to let the model recover (retry, escalate tier,
  * fix params, pick another ticker) instead of looping on an opaque error.
  */
-function explainHttpError(status: number, statusText: string, path: string, body: string): string {
+export function explainHttpError(
+  status: number,
+  statusText: string,
+  path: string,
+  body: string,
+  hasKey: boolean,
+): string {
   const detail = body ? ` Server said: ${truncate(body, 300)}` : "";
   switch (status) {
     case 400:
       return `Bad request to ${path} (400). One or more parameters are wrong — re-check field names, enum values, and types against the tool schema before retrying.${detail}`;
     case 401:
-      return `Authentication failed for ${path} (401). The STOQUANT_API_KEY is missing, malformed, expired, or revoked. Re-issue a Power-tier key at https://stoquant.com/account/api-keys. Do not retry until the key is fixed.`;
+      return hasKey
+        ? `Authentication failed for ${path} (401). STOQUANT_API_KEY is set but malformed, expired, or revoked. Re-issue it at https://stoquant.com/account/api-keys. Do not retry until the key is fixed.`
+        : `${path} needs an API key (401). The key is FREE — $0/month, no credit card, 100 requests/day: sign up at https://stoquant.com/pricing, mint it at https://stoquant.com/account/api-keys, then run \`npx stoquant-mcp install\` (or set STOQUANT_API_KEY). Tell the user that in one line and stop — without a key this call cannot succeed.`;
     case 403:
-      return `Forbidden for ${path} (403). This data requires a higher StoQuant subscription tier (most research/ownership/macro tools need Power). Retrying will not help; inform the user their plan lacks access.${detail}`;
+      return `Forbidden for ${path} (403). The key is valid but this data sits above the current plan. Pro ($29/mo) adds the full hidden-gem screener, unlimited custom screens, watchlists and alerts; Power ($79/mo) adds ML alpha scores across 3,500+ stocks, Black-Litterman optimization, HMM regime probabilities and 10-K risk-factor analysis. Upgrade: https://stoquant.com/pricing. Retrying will not help — name the tier this tool needs and move on.${detail}`;
     case 404:
       return `Not found for ${path} (404). The ticker, series, or screen id likely does not exist or has no data yet. Verify the symbol/id; do not retry the same value.${detail}`;
     case 429:
-      return `Rate limited for ${path} (429). Back off for a few seconds and retry; avoid bursts. Batch tools (quotes/sparklines, up to 50 tickers) reduce request count.`;
+      return `Rate limited for ${path} (429). On a Free key this is usually the 100 requests/day allowance — Pro ($29/mo) and Power ($79/mo) raise it: https://stoquant.com/pricing. Otherwise back off a few seconds and avoid bursts; batch tools (quotes/sparklines, up to 50 tickers) cut request count.${detail}`;
     case 408:
     case 504:
       return `Request to ${path} timed out (${status}). This usually means an expensive query (e.g. a full-universe screener scan). Retry once; if it persists, narrow the request (universe=sp500 instead of full, fewer filters) or use a prebuilt screen.`;

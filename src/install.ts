@@ -41,8 +41,9 @@ export async function runInstall(): Promise<void> {
   const out = process.stdout;
   out.write("\nStoQuant MCP — one-shot installer\n");
   out.write("---------------------------------\n");
-  out.write("This will register stoquant-mcp with Claude Desktop using your Power-tier API key.\n");
-  out.write("Get your key at: https://stoquant.com/account/api-keys\n\n");
+  out.write("This will register stoquant-mcp with Claude Desktop using your StoQuant API key.\n");
+  out.write("A Free key works: $0/month, no credit card, 100 requests/day.\n");
+  out.write("Sign up: https://stoquant.com/pricing   Mint the key: https://stoquant.com/account/api-keys\n\n");
 
   const fromEnv = process.env.STOQUANT_API_KEY?.trim();
   let apiKey = fromEnv ?? "";
