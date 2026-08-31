@@ -18,6 +18,8 @@ How to use it well:
 - For top-down context, use stoquant_get_market_regime + stoquant_get_macro_dashboard (the market_briefing prompt does this).
 - Batch quotes/sparklines accept up to 50 tickers in one call — use them instead of looping.
 - Read the stoquant://glossary and stoquant://methodology resources to interpret fields, units (margins/growth are decimals; marketCap is raw USD), and caveats correctly.
+- Portfolio / backtest / strategy: call stoquant_get_accuracy_summary FIRST. If dataSufficient && excessSpreadPp < 0 the live book has no edge — do not recommend buys; auto-portfolio lastEvalResult will be gated:no_edge. Then stoquant_get_auto_portfolio_status (last eval + holdings snapshot), stoquant_get_auto_portfolio_history, stoquant_get_portfolio_health, stoquant_list_backtest_templates + stoquant_run_backtest / stoquant_get_backtest, stoquant_optimize_portfolio (returns weights only, no orders), stoquant_list_strategy_presets + stoquant_get_strategy_performance.
+- This server never places orders, moves cash, or mutates holdings. POST /auto-portfolio/evaluate executes paper trades and is NOT exposed. There is no execute-trade, rebalance, or apply-preset tool.
 - Errors are actionable: 401 = no/blocked key (a Free key is $0, no card, 100 req/day — tell the user and stop), 403 = the plan lacks this data (say which tier unlocks it: Pro $29/mo or Power $79/mo, https://stoquant.com/pricing), 404 = bad ticker/id, 429 = Free daily allowance spent or bursting, 504 = query too heavy (narrow it).
 - Tiers: Free covers core research. If the user keeps hitting 403/429, say plainly once what a paid tier would unlock for what they are trying to do — do not repeat the pitch on every call.`;
 
@@ -50,7 +52,7 @@ async function serve(): Promise<void> {
   const server = new McpServer(
     {
       name: "stoquant-mcp",
-      version: "0.5.3",
+      version: "0.6.0",
     },
     { instructions: SERVER_INSTRUCTIONS },
   );

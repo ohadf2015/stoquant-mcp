@@ -1,5 +1,6 @@
 import type { Config } from "./config.js";
 import { redactSecrets } from "./format.js";
+import { resolveRequestUrl } from "./resolve-url.js";
 import { bucketForRpm, TokenBucket } from "./rate-limit.js";
 
 export interface RequestOptions {
@@ -69,7 +70,7 @@ export class StoQuantClient {
   }
 
   private buildUrl(path: string, query: RequestOptions["query"]): string {
-    const url = new URL(this.config.baseUrl + path);
+    const url = new URL(resolveRequestUrl(this.config.baseUrl, path));
     if (query) {
       for (const [k, v] of Object.entries(query)) {
         if (v == null) continue;

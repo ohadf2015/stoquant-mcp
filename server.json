@@ -1,9 +1,9 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-29/server.schema.json",
   "name": "io.github.ohadf2015/stoquant-mcp",
-  "description": "Quant stock research for Claude: 48 read-only tools — Q-Score, ML odds, screeners, alt-data.",
+  "description": "StoQuant: 61 tools — Q-Score, ML, screeners, alt-data, portfolio, backtest, strategy.",
   "title": "StoQuant — Quantitative Stock Research",
-  "version": "0.5.3",
+  "version": "0.6.0",
   "repository": {
     "url": "https://github.com/ohadf2015/stoquant-mcp",
     "source": "github"
@@ -13,7 +13,7 @@
     {
       "registryType": "npm",
       "identifier": "stoquant-mcp",
-      "version": "0.5.3",
+      "version": "0.6.0",
       "transport": {
         "type": "stdio"
       },
