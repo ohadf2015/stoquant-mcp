@@ -3,7 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/stoquant-mcp.svg)](https://www.npmjs.com/package/stoquant-mcp)
 [![MCP Registry](https://img.shields.io/badge/MCP_Registry-io.github.ohadf2015%2Fstoquant--mcp-blue)](https://registry.modelcontextprotocol.io)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Tools](https://img.shields.io/badge/tools-48_read--only-orange.svg)](https://stoquant.com/mcp)
+[![Tools](https://img.shields.io/badge/tools-61_read--only-orange.svg)](https://stoquant.com/mcp)
 
 Model Context Protocol (MCP) server for **StoQuant** — gives Claude (and any MCP-compatible agent) direct, read-only access to StoQuant's quant signals, ML predictions, screening, ownership, and macro data.
 
@@ -44,12 +44,12 @@ Config locations:
 - Windows: `%APPDATA%/Claude/claude_desktop_config.json`
 - Linux: `~/.config/Claude/claude_desktop_config.json`
 
-## Tools (48)
+## Tools (61)
 
 | Category | Tools |
 |---|---|
 | **Prices** | `get_quote`, `get_quotes_batch`, `get_extended_quote`, `get_sparklines`, `get_benchmarks`, `get_sector_performers` |
-| **Research** | `get_qscore`, `get_signals_v2`, `get_ml_prediction`, `explain_ml_prediction`, `get_strategic_edges`, `get_quant_analytics` |
+| **Research** | `get_qscore`, `get_signals_v2`, `get_ml_prediction`, `explain_ml_prediction`, `get_strategic_edges`, `get_quant_analytics`, `get_evidence` |
 | **Signals** | `get_market_regime`, `get_signal_accuracy`, `get_accuracy_summary` |
 | **Discovery** | `get_top_conviction`, `get_hidden_gems`, `get_multibagger_candidates`, `get_related_stocks`, `get_signal_accuracy_heatmap` |
 | **Screener** | `list_prebuilt_screens`, `run_prebuilt_screen`, `run_screener` |
@@ -58,9 +58,19 @@ Config locations:
 | **Social** | `get_social_sentiment`, `get_social_trend`, `get_trending_social`, `get_social_momentum`, `get_source_credibility` |
 | **Catalysts** | `get_catalysts`, `get_catalyst_watch` |
 | **Alt-data** | `get_alt_signals` (FDA, CPSC, SEC suite, clinical trials, GitHub, App Store, Hacker News, news tone — one call), `get_alt_data` (Google Trends, Wikipedia views, options IV) |
+| **Options flow** | `get_unusual_options` |
+| **Portfolio** | `get_auto_portfolio_status`, `get_auto_portfolio_history`, `get_portfolio_health`, `optimize_portfolio` |
+| **Backtest** | `list_backtest_templates`, `run_backtest`, `get_backtest`, `get_backtest_history` |
+| **Strategy** | `get_strategy_performance`, `list_strategy_presets`, `get_strategy_preset_candidates` |
 | **Macro** | `get_macro_indicator`, `get_macro_dashboard`, `get_macro_calendar`, `get_macro_themes` |
 
-All tools are read-only. No mutation, no portfolio changes, no order placement. Each tool is annotated `readOnlyHint` so agents know it is safe to call.
+Most tools are read-only fetches. `run_backtest` persists a simulation run (no live or paper orders). There is no order placement, cash move, or holdings mutation. Each tool is annotated `readOnlyHint` so agents know it is safe to call.
+
+### Accuracy and the no-edge gate
+
+`get_accuracy_summary` hits the public `/public/accuracy/summary` scorecard. Read `excessSpreadPp` (alpha spread) and `dataSufficient` — **do not treat `hitRate` as skill**. When `dataSufficient && excessSpreadPp < 0`, auto-portfolio buys are suppressed (`gated:no_edge`). Call this before any buy-oriented portfolio read.
+
+Portfolio/backtest/strategy tools are evaluate/read/backtest/optimize. This server never places orders. `POST /auto-portfolio/evaluate` executes paper trades and is **not** exposed.
 
 ### Two things to know
 
@@ -100,6 +110,9 @@ The screener reads from StoQuant's cached daily fundamentals (fast, refreshed da
 - "Run the undervalued-gems prebuilt screen on the sp500 universe."
 - "Screen sp500 for trailingPE under 15 and debtToEquity under 0.5."
 - "Get insider activity for PLTR over the last quarter."
+- "What is the live accuracy grade and excessSpreadPp? Do not buy if the tail is inverted."
+- "Show auto-portfolio last eval and holdings. If gated:no_edge, do not recommend buys."
+- "List backtest templates and run momentum on sp500 for 2023."
 
 ## Security
 

@@ -21,8 +21,8 @@ export const signalTools: AnyToolDef[] = [
     name: "stoquant_get_accuracy_summary",
     title: "Get platform accuracy summary",
     description:
-      "Platform-wide model scorecard: letter `grade`, overall `hitRate`, `sampleSize`, top- vs bottom-quintile average 90-day returns and their `spreadPp` (the real edge), `spyAvgReturn90d` (Russell 2000 benchmark preferred via IWM/^RUT, SPY fallback), `trend`/`trendDelta`, a Wilson confidence interval, and `dataSufficient`. Use to gauge overall reliability of StoQuant's signals right now.",
+      "Public, unauthenticated platform scorecard from /public/accuracy/summary (no Pro gate). Key fields: letter `grade`, `hitRate` (do NOT treat hitRate as skill — a high hit-rate on a negatively-skewed book still loses money), `excessSpreadPp` (top-minus-bottom quintile 90-day *alpha*; this is the real edge), `spreadPp` (raw return spread, not alpha), `dataSufficient` (false = sample too small, ignore the grade), `independentWindows` (independent 90-day windows behind the Wilson CI), `sampleSize`, Wilson CI. When `dataSufficient` is true AND `excessSpreadPp` < 0 the live book has an inverted tail — auto-portfolio BUY recommendations are suppressed with gateReason `no_edge`. Call this before any buy-oriented auto-portfolio or optimizer read.",
     schema: {},
-    handler: async (_args, client) => client.request(`/accuracy/summary`),
+    handler: async (_args, client) => client.request(`/public/accuracy/summary`),
   }),
 ];

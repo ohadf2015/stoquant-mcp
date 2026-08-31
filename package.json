@@ -1,6 +1,6 @@
 {
   "name": "stoquant-mcp",
-  "version": "0.5.3",
+  "version": "0.6.0",
   "description": "Model Context Protocol server for StoQuant — read-only investor signals, screening, and market data.",
   "license": "MIT",
   "author": "StoQuant",
@@ -29,6 +29,7 @@
     "dev": "tsx watch src/index.ts",
     "start": "node dist/index.js",
     "typecheck": "tsc --noEmit",
+    "test": "tsx --test src/tier-messages.test.ts src/resolve-url.test.ts src/tools/portfolio.test.ts src/tools/catalog.test.ts",
     "prepublishOnly": "npm run build"
   },
   "keywords": [

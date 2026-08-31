@@ -4,16 +4,20 @@ import type { StoQuantClient } from "../client.js";
 import { asErrorResult, asTextResult } from "../format.js";
 import type { AnyToolDef } from "../registry.js";
 import { altDataTools } from "./altdata.js";
+import { backtestTools } from "./backtest.js";
 import { catalystTools } from "./catalysts.js";
 import { discoveryTools } from "./discovery.js";
 import { filingsTools } from "./filings.js";
 import { macroTools } from "./macro.js";
 import { ownershipTools } from "./ownership.js";
+import { portfolioTools } from "./portfolio.js";
 import { priceTools } from "./prices.js";
 import { researchTools } from "./research.js";
 import { screenerTools } from "./screener.js";
 import { signalTools } from "./signals.js";
 import { socialTools } from "./social.js";
+import { strategyTools } from "./strategy.js";
+import { unusualOptionsTools } from "./unusual-options.js";
 
 /** Every StoQuant tool, in a stable, category-grouped order. */
 export const ALL_TOOLS: AnyToolDef[] = [
@@ -28,6 +32,10 @@ export const ALL_TOOLS: AnyToolDef[] = [
   ...socialTools,
   ...catalystTools,
   ...altDataTools,
+  ...unusualOptionsTools,
+  ...portfolioTools,
+  ...backtestTools,
+  ...strategyTools,
 ];
 
 export function findTool(name: string): AnyToolDef | undefined {
@@ -43,7 +51,8 @@ export function registerAllTools(server: McpServer, client: StoQuantClient): voi
         title: def.title ?? def.name,
         description: def.description,
         inputSchema: def.schema,
-        // Every StoQuant tool is a read-only fetch from the external API.
+        // Every StoQuant tool is a read-only fetch from the external API
+        // except stoquant_run_backtest, which persists a simulation run (still no orders).
         annotations: {
           title: def.title ?? def.name,
           readOnlyHint: true,
