@@ -3,6 +3,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { StoQuantClient } from "./client.js";
 import { loadConfig } from "./config.js";
+import { redactSecrets } from "./format.js";
 import { runInstall } from "./install.js";
 import { registerAllPrompts } from "./prompts.js";
 import { registerAllResources } from "./resources.js";
@@ -87,6 +88,6 @@ async function main(): Promise<void> {
 }
 
 main().catch((err) => {
-  process.stderr.write(`[stoquant-mcp] fatal: ${(err as Error).message}\n`);
+  process.stderr.write(`[stoquant-mcp] fatal: ${redactSecrets((err as Error).message)}\n`);
   process.exit(1);
 });

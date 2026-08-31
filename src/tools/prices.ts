@@ -1,6 +1,18 @@
 import { z } from "zod";
 import { defineTool, type AnyToolDef } from "../registry.js";
-import { assertTicker, assertTickers, clampLimit } from "../validate.js";
+import { assertTicker, assertTickers, assertSector, clampLimit } from "../validate.js";
+
+const TIMEZONE_RE = /^[A-Za-z0-9_+\-/]{1,64}$/;
+
+function assertTimezone(tz: string | undefined): string | undefined {
+  if (tz == null) return undefined;
+  const v = tz.trim();
+  if (!v) return undefined;
+  if (!TIMEZONE_RE.test(v)) {
+    throw new Error("Invalid timezone: use an IANA name (e.g. America/New_York), max 64 characters");
+  }
+  return v;
+}
 
 export const priceTools: AnyToolDef[] = [
   defineTool({
@@ -36,7 +48,7 @@ export const priceTools: AnyToolDef[] = [
     },
     handler: async ({ ticker, timezone }, client) => {
       const t = assertTicker(ticker);
-      return client.request(`/prices/${t}/extended`, { query: { timezone } });
+      return client.request(`/prices/${t}/extended`, { query: { timezone: assertTimezone(timezone) } });
     },
   }),
   defineTool({
@@ -71,7 +83,7 @@ export const priceTools: AnyToolDef[] = [
       limit: z.number().int().optional().describe("Max performers per side (default 10, max 50)"),
     },
     handler: async ({ sector, limit }, client) => {
-      const s = encodeURIComponent(sector);
+      const s = encodeURIComponent(assertSector(sector));
       const lim = clampLimit(limit, 50, 10);
       return client.request(`/sector/${s}/performers`, { query: { limit: lim } });
     },

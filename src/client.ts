@@ -1,4 +1,5 @@
 import type { Config } from "./config.js";
+import { redactSecrets } from "./format.js";
 import { bucketForRpm, TokenBucket } from "./rate-limit.js";
 
 export interface RequestOptions {
@@ -47,7 +48,7 @@ export class StoQuantClient {
             `Retry once, narrow the request (universe=sp500, fewer filters, a prebuilt screen), or raise STOQUANT_TIMEOUT_MS.`,
         );
       }
-      throw new Error(`Network error calling ${redactPath(path)}: ${(err as Error).message}`);
+      throw new Error(`Network error calling ${redactPath(path)}: ${redactSecrets((err as Error).message)}`);
     } finally {
       clearTimeout(timer);
     }
@@ -55,7 +56,7 @@ export class StoQuantClient {
     if (!res.ok) {
       const body = await safeReadText(res);
       throw new Error(
-        explainHttpError(res.status, res.statusText, redactPath(path), body, Boolean(this.config.apiKey)),
+        redactSecrets(explainHttpError(res.status, res.statusText, redactPath(path), body, Boolean(this.config.apiKey))),
       );
     }
     const text = await res.text();
@@ -93,7 +94,18 @@ function truncate(s: string, n: number): string {
 }
 
 function redactPath(p: string): string {
-  return p;
+  let out = p;
+  try {
+    const u = new URL(p);
+    u.username = "";
+    u.password = "";
+    u.search = "";
+    u.hash = "";
+    out = `${u.origin}${u.pathname}`;
+  } catch {
+    out = p.replace(/[?#].*$/, "");
+  }
+  return redactSecrets(out);
 }
 
 /**
@@ -108,7 +120,7 @@ export function explainHttpError(
   body: string,
   hasKey: boolean,
 ): string {
-  const detail = body ? ` Server said: ${truncate(body, 300)}` : "";
+  const detail = body ? ` Server said: ${truncate(redactSecrets(body), 300)}` : "";
   switch (status) {
     case 400:
       return `Bad request to ${path} (400). One or more parameters are wrong — re-check field names, enum values, and types against the tool schema before retrying.${detail}`;
